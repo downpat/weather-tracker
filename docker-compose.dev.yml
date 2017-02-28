@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  db:
+    image: postgres
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes: [
+      "./pkg:/app"
+    ]
+    ports: ["8080:8080"]
+    depends_on:
+      - db

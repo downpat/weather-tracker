@@ -1,6 +1,33 @@
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import UserCreationForm
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.http import HttpResponse
-
 
 def index(request):
     return HttpResponse("Here I am. Rock you like a hurricane!")
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.email = user.username
+            user.save()
+            login(request, user)
+            return HttpResponseRedirect(reverse('user_cities'))
+
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'registration/register.html', {'form': form})
+
+def weather_logout(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('index'))
+
+def user_cities(request):
+    return HttpResponse("%s's cities!" % request.user.username)
+
+def uc_redirect(request):
+    return HttpResponseRedirect(reverse('user_cities'))

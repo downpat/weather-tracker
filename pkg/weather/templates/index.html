@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>Weather Tracker | Find Weather You Like</title>
+  </head>
+  <body>
+    <form method="post" action="{% url 'index' %}">
+      {% csrf_token %}
+      <table>
+        <tr>
+          <td>Find a city:</td>
+          <td><input name="search" type="text"></input></td>
+          <td><input type="submit"/></td>
+        </tr>
+      </table>
+    </form>
+    {% if cities %}
+      <table>
+          <tr>
+            <td>Name</td>
+            <td>Coordinates</td>
+            <td>Country</td>
+          </tr>
+        {% for city in cities %}
+          <tr>
+            <td>{{ city.name }}</td>
+            <td>{{ city.lat }}, {{city.lon}}</td>
+            <td>{{ city.country_code }}</td>
+          </tr>
+        {% empty %}
+          <tr>Sorry, your search returned no results</tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+  </body>
+</html>

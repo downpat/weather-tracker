@@ -4,8 +4,13 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
+from weather.models import City
+
 def index(request):
-    return HttpResponse("Here I am. Rock you like a hurricane!")
+    if request.method == 'POST':
+        cities = City.objects.filter(name__icontains=request.POST['search'])
+        return render(request, 'index.html', {'cities': cities})
+    return render(request, 'index.html')
 
 def register(request):
     if request.method == 'POST':

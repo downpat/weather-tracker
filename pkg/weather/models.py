@@ -7,7 +7,6 @@ class City(models.Model):
     lon = models.DecimalField(max_digits=12, decimal_places=8)
     country_code = models.CharField(max_length=2)
     open_weather_id = models.IntegerField()
-    users = models.ManyToManyField(User, related_name='cities', through='UserCity')
 
 class UserCity(models.Model):
     city = models.ForeignKey(City)

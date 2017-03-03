@@ -4,13 +4,35 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
-from weather.models import City
+from weather.models import City, UserCity
 
 def index(request):
     if request.method == 'POST':
         cities = City.objects.filter(name__icontains=request.POST['search'])
         return render(request, 'index.html', {'cities': cities})
     return render(request, 'index.html')
+
+def city(request, city_id):
+    city = City.objects.get(pk=city_id)
+    
+    users_city = False
+    if request.user.is_authenticated:
+        users_city = UserCity.objects.filter(user=request.user, city__pk=city_id).exists()
+    return render(request, 'city.html', {'city': city, 'users_city':users_city})
+
+def add_city(request, city_id):
+    if request.user.is_authenticated:
+        UserCity.objects.get_or_create(city=City.objects.get(pk=city_id), user=request.user)
+        return HttpResponseRedirect(reverse('city', kwargs={'city_id':city_id}))
+    else:
+        return HttpResponseRedirect(reverse('login'))
+
+def remove_city(request, city_id):
+    if request.user.is_authenticated:
+        UserCity.objects.filter(city__pk=city_id, user=request.user).delete()
+        return HttpResponseRedirect(reverse('city', kwargs={'city_id':city_id}))
+    else:
+        return HttpResponseRedirect(reverse('login'))
 
 def register(request):
     if request.method == 'POST':

@@ -22,7 +22,9 @@
           </tr>
         {% for city in cities %}
           <tr>
-            <td>{{ city.name }}</td>
+            <td>
+              <a href="{% url 'city' city.pk %}">{{ city.name }}</a>
+            </td>
             <td>{{ city.lat }}, {{city.lon}}</td>
             <td>{{ city.country_code }}</td>
           </tr>

@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <title>Weather Tracker | Find Weather You Like</title>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td>Name:</td>
+        <td>{{ city.name }}</td>
+      </tr>
+      <tr>
+        <td>Country:</td>
+        <td>{{ city.country_code }}</td>
+      </tr>
+      <tr>
+        <td>
+          <iframe
+            width="600"
+            height="450"
+            frameborder="0" style="border:0"
+            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCIaSD8ppVd3mI-vcmwy0KfRHIDvk0g5Bw&q={{ city.lat }},{{city.lon}}&zoom=7" allowfullscreen>
+          </iframe>
+        </td>
+      </tr>
+      <tr>
+        <td>
+        {% if users_city %}
+          <a href="{% url 'remove_city' city.pk %}">Remove City</a>
+        {% else %}
+          <a href="{% url 'add_city' city.pk %}">Add City</a>
+        {% endif %}
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -17,6 +17,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         ucs = UserCity.objects.order_by('city').distinct('city')
 
+        if len(ucs) == 0:
+            return
+
         ids_str = ','.join([str(uc.city.open_weather_id) for uc in ucs])
         resp = requests.get(OWM_GROUP_URL % (ids_str, API_KEY))
         cities_weather = json.loads(resp.text)['list']

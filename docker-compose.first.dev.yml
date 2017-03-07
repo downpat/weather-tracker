@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: bash -c "python manage.py weatherimport && python manage.py runserver 0.0.0.0:8080"
+    command: bash -c "python manage.py migrate && python manage.py loaddata cities.fixture.json && python manage.py weatherimport && python manage.py runserver 0.0.0.0:8080"
     volumes: [
       "./pkg:/app"
     ]

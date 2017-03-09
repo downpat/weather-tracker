@@ -7,10 +7,16 @@ from django.shortcuts import render
 from weather.models import City, UserCity
 
 def index(request):
+    context = {}
+    if request.user.is_authenticated:
+        user_cities = UserCity.objects.filter(user=request.user)
+        context['user_cities'] = user_cities
+    
     if request.method == 'POST':
         cities = City.objects.filter(name__icontains=request.POST['search'])
-        return render(request, 'index.html', {'cities': cities})
-    return render(request, 'index.html')
+        context['cities'] = cities
+    
+    return render(request, 'index.html', context)
 
 def city(request, city_id):
     city = City.objects.get(pk=city_id)
@@ -23,14 +29,14 @@ def city(request, city_id):
 def add_city(request, city_id):
     if request.user.is_authenticated:
         UserCity.objects.get_or_create(city=City.objects.get(pk=city_id), user=request.user)
-        return HttpResponseRedirect(reverse('city', kwargs={'city_id':city_id}))
+        return HttpResponseRedirect(reverse('index'))
     else:
         return HttpResponseRedirect(reverse('login'))
 
 def remove_city(request, city_id):
     if request.user.is_authenticated:
         UserCity.objects.filter(city__pk=city_id, user=request.user).delete()
-        return HttpResponseRedirect(reverse('city', kwargs={'city_id':city_id}))
+        return HttpResponseRedirect(reverse('index'))
     else:
         return HttpResponseRedirect(reverse('login'))
 
@@ -57,4 +63,4 @@ def user_cities(request):
     return HttpResponse("%s's cities!" % request.user.username)
 
 def uc_redirect(request):
-    return HttpResponseRedirect(reverse('user_cities'))
+    return HttpResponseRedirect(reverse('index'))

@@ -1,37 +1,143 @@
+<!DOCTYPE html> 
 <html>
   <head>
     <title>Weather Tracker | Find Weather You Like</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/wt.css' %}">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="{% static 'js/wt.js' %}"></script>
   </head>
   <body>
-    <form method="post" action="{% url 'index' %}">
-      {% csrf_token %}
-      <table>
-        <tr>
-          <td>Find a city:</td>
-          <td><input name="search" type="text"></input></td>
-          <td><input type="submit"/></td>
-        </tr>
-      </table>
-    </form>
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Weather Tracker</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+              <li><a href="{% url 'weather_logout' %}">Logout</a></li>
+            {% else %}
+              <li><a href="{% url 'login' %}">Login</a></li>
+            {% endif %}
+            <li><a href="https://downpatproductions.com/">A Down Pat Production</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid first-row">
+      <div class="row">
+	{% if user.is_authenticated %}
+          <div class="col-md-6 col-md-offset-1">
+            <form method="post" action="{% url 'index' %}">
+              {% csrf_token %}
+              <label for="search-input">City Search</label>
+              <input type="text" name="search" id="search-input" class="form-control" aria-describedby="search-help">
+              <span id="search-help" class="help-block">Enter a city name and we'll find all the matching cities.</span>
+              <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+          </div>
+	  <div class="col-md-4 col-md-offset-1">
+            <div id="userCitiesPanel" class="panel panel-warning">
+              <div class="panel-heading">
+                <h1 class="panel-title">Your Cities</h1>
+              </div>
+              <table class="table">
+                {% if user_cities %}
+                  {% for user_city in user_cities %}
+                    {% if forloop.first %}
+                    <tr>
+                      <th>Name</th>
+                      <th>Country</th>
+                      <th>Coords</th>
+                      <th>Remove from City List</th>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                      <td>{{ user_city.city.name }}</td>
+                      <td>{{ user_city.city.country_code }}</td>
+                      <td>{{ user_city.city.lat}}, {{ user_city.city.lon }}</td>
+                      <td>
+                        <a href="{% url 'remove_city' user_city.city.pk %}">
+                          Remove
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <p>You do not have any cities yet.</p>
+                {% endif %}
+              </table>
+              <div class="panel-footer">
+                <p>Drag cities here to add them to your list.</p>
+              <div>
+            </div>
+	  </div>
+        {% else %}
+          <div class="col-md-6 col-md-offset-3">
+            <form method="post" action="{% url 'index' %}">
+              {% csrf_token %}
+              <label for="search-input">City Search</label>
+              <input type="text" name="search" id="search-input" class="form-control" aria-describedby="search-help">
+              <span id="search-help" class="help-block">Enter a city name and we'll find all the matching cities.</span>
+              <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    </div>
     {% if cities %}
-      <table>
-          <tr>
-            <td>Name</td>
-            <td>Coordinates</td>
-            <td>Country</td>
-          </tr>
-        {% for city in cities %}
-          <tr>
-            <td>
-              <a href="{% url 'city' city.pk %}">{{ city.name }}</a>
-            </td>
-            <td>{{ city.lat }}, {{city.lon}}</td>
-            <td>{{ city.country_code }}</td>
-          </tr>
-        {% empty %}
-          <tr>Sorry, your search returned no results</tr>
-        {% endfor %}
-      </table>
+        <div id="cities-container" class="container-fluid">
+          <div class="row">
+            {% for city in cities %}
+              <div class="
+                  col-xs-12
+                  {% cycle 'col-md-3' 'col-md-3 col-md-offset-1' 'col-md-3 col-md-offset-1' %}
+                "
+              >
+                <div class="panel panel-primary">
+                  <div
+                    class="panel-heading draggable"
+                    data-addCityUrl="{% url 'add_city' city.pk %}"
+                  >
+                    <h2 class="panel-title">
+                      <span class="glyphicon glyphicon-option-vertical"></span>
+                      {{ city.name }}
+                    </h2>
+                  </div>
+                  <div class="panel-body">
+                    <p><b>Country:</b>{{ city.country_code }}</p>
+                    <iframe
+                      width="240"
+                      height="180"
+                      frameborder="0" style="border:0"
+                      src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCIaSD8ppVd3mI-vcmwy0KfRHIDvk0g5Bw&q={{ city.lat }},{{city.lon}}&zoom=7" allowfullscreen>
+                    </iframe>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">No Results</h3>
+                  </div>
+                  <div class="panel-body">
+                    <p>Sorry, your search returned no results</p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
     {% endif %}
   </body>
 </html>
